@@ -1,0 +1,57 @@
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - "8080:8080" # backend
+      - "8090:8090" # frontend
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./backend:/app/backend
+      - ./frontend:/app/frontend
+
+  frontend:
+    container_name: frontend
+    build: 
+      context: .
+      dockerfile: ./docker/frontend/Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./backend:/app/backend
+
+  mysql:
+    container_name: database
+    image: mysql:8
+    volumes:
+      - database:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: "vista"
+
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8070:80"
+    depends_on:
+      - mysql
+
+volumes:
+  database:
