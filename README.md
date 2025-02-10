@@ -1,0 +1,1 @@
+## Base for Symfony 7- React 19 project
